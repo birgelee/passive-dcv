@@ -1,4 +1,5 @@
 import asyncio
+import shutil
 import sys
 
 from fastapi import FastAPI
@@ -95,6 +96,8 @@ async def perform_cert_request(request: CertRequest):
     with open(f"{cert_dir}/fullchain.pem") as f:
         full_chain = f.read()
 
+    shutil.rmtree(cert_dir)
+    shutil.rmtree(web_dir)
     return CertResponse(domain = request.domain, full_chain = full_chain)
 
 
