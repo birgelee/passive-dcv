@@ -87,7 +87,6 @@ print(requests.post('https://pdcv.henrybirgelee.com/cert', json={'domain': 'YOUR
 
 The resulting JSON will have your cert, chain, and fullchain in json string form which can be installed along with your private key from openssl to run an HTTPS site.
 
-
 Another variant with writing to output files for later use by a webserver:
 ```
 python -c "import requests
@@ -100,3 +99,5 @@ Path('fullchain.pem').write_text(response['full_chain'])
 Path('chain.pem').write_text(response['chain'])
 Path('cert.pem').write_text(response['cert'])"
 ```
+
+Please be patient. Even though on the front end this is a single blocking HTTP post request, on the back end there are dozens of connections between the client, the CA, your domain, and the test endpoint that all need to be resolved. First certificates take slightly longer. If two certificates are requested in rapid succession, validation reuse may allow them to go faster. Note that each secret is associated with a different certbot config dir, so people without your secret cannot get a cert even if there is still a pending validation.
