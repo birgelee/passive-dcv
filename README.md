@@ -79,7 +79,7 @@ For a python oneliner (presuming your secret is my_secret.key, and your CSR is r
 python -c "import requests
 secret = Path('my_secret.key').read_text()
 csr = Path('req.csr').read_text()
-print(requests.post("https://pdcv.henrybirgelee.com/cert", json={'domain': 'YOUR_DOMAIN_HERE', 'csr': csr, 'secret': secret}).text)"
+print(requests.post('https://pdcv.henrybirgelee.com/cert', json={'domain': 'YOUR_DOMAIN_HERE', 'csr': csr, 'secret': secret}).text)"
 ```
 
 The resulting JSON will have your cert, chain, and fullchain in json string form which can be installed along with your private key from openssl to run an HTTPS site.
@@ -91,8 +91,8 @@ python -c "import requests
 import json
 secret = Path('my_secret.key').read_text()
 csr = Path('req.csr').read_text()
-response = json.loads(requests.post('https://pdcv.henrybirgelee.com/cert', json={'domain': 'YOUR_DOMAIN_HERE', 'csr': csr, 'secret': secret}).text)"
+response = json.loads(requests.post('https://pdcv.henrybirgelee.com/cert', json={'domain': 'YOUR_DOMAIN_HERE', 'csr': csr, 'secret': secret}).text)
 Path('fullchain.pem').write_text(response['full_chain'])
 Path('chain.pem').write_text(response['chain'])
-Path('cert.pem').write_text(response['cert'])
+Path('cert.pem').write_text(response['cert'])"
 ```
