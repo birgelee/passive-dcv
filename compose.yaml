@@ -1,0 +1,11 @@
+services:
+  pdcv:
+    build:
+      context: "pdcv"
+    restart: always
+    environment:
+      perspective_names: "perspective-names"
+    ports:
+    - "127.0.0.1:8080:80/tcp"
+
+
