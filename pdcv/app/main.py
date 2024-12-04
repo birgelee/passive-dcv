@@ -71,5 +71,7 @@ async def perform_cert_request(request: CertRequest):
 
 
 @app.get("/domain/{domain_name}")
-def domain_challenge(domain_name: str):
+async def domain_challenge(domain_name: str):
+    global domain_challenge_map
     print(f"domain challenge for {domain_name}")
+    return domain_challenge_map[domain_name]
