@@ -42,16 +42,19 @@ domain_challenge_map = {}
 @app.post("/cert")
 async def perform_cert_request(request: CertRequest):
     global domain_challenge_map
-    p = Popen(['certbot', 'certonly', '--manual', '--register-unsafely-without-email', '--agree-tos', '-d', request.domain], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
-    print("running subproc v2")
-    print(f"for csr: {request.csr}")
-    sys.stdout.flush()
+    csr_path = f"/tmp/{request.domain}.csr"
+    with open(csr_path, 'w') as f:
+        f.write(request.csr)
+    p = Popen(['certbot', 'certonly', '--manual', '--register-unsafely-without-email', "--csr", csr_path, '--agree-tos', '-d', request.domain], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+    print("running subproc v2", flush= True)
+    print(f"for csr: {request.csr}", flush= True)
+    
     #await asyncio.sleep(5)
 
 
     #full_output = ""
     line = p.stdout.readline().rstrip().decode("utf-8")
-
+    print(line, flush=True)
     
     data = ""
     while True:
@@ -61,7 +64,7 @@ async def perform_cert_request(request: CertRequest):
             next_line_is_data = True
             p.stdout.readline().rstrip().decode("utf-8")
             data = p.stdout.readline().rstrip().decode("utf-8")
-        #print(line)
+        print(line, flush=True)
         line = p.stdout.readline().rstrip().decode("utf-8")
     print(p.stdout.readline().rstrip().decode("utf-8"), flush=True)
     location_url = p.stdout.readline().rstrip().decode("utf-8")
