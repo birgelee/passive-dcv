@@ -85,7 +85,7 @@ async def perform_cert_request(request: CertRequest):
     Path(config_dir).mkdir(parents=True, exist_ok=True)
 
     #p = Popen(['certbot', 'certonly', '--webroot', '-w', web_dir, '-d', request.domain, '--register-unsafely-without-email', "--csr", csr_path, '--agree-tos', '--test-cert', '--cert-path', f"{cert_dir}/cert.pem", '--fullchain-path', f"{cert_dir}/fullchain.pem", '--chain-path', f"{cert_dir}/chain.pem", '--config-dir', config_dir], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
-    certbot_cmd = f"certbot certonly --webroot -w {web_dir} -d {request.domain} --register-unsafely-without-email -csr {csr_path} --agree-tos --test-cert --cert-path {cert_dir}/cert.pem --fullchain-path {cert_dir}/fullchain.pem --chain-path {cert_dir}/chain.pem --config-dir {config_dir}"
+    certbot_cmd = f"certbot certonly --webroot -w {web_dir} -d {request.domain} --register-unsafely-without-email --csr {csr_path} --agree-tos --test-cert --cert-path {cert_dir}/cert.pem --fullchain-path {cert_dir}/fullchain.pem --chain-path {cert_dir}/chain.pem --config-dir {config_dir}"
     print(certbot_cmd)
     await run_async(certbot_cmd)
     #await asyncio.sleep(25)
