@@ -12,6 +12,9 @@ import random
 import os
 import json
 
+from pathlib import Path
+
+
 import threading
 from fastapi.responses import PlainTextResponse
 
@@ -45,37 +48,45 @@ async def perform_cert_request(request: CertRequest):
     csr_path = f"/tmp/{request.domain}.csr"
     with open(csr_path, 'w') as f:
         f.write(request.csr)
-    p = Popen(['certbot', 'certonly', '--manual', '--register-unsafely-without-email', "--csr", csr_path, '--agree-tos', '-d', request.domain], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+    # make the dir
     print("running subproc v2", flush= True)
-    print(f"for csr: {request.csr}", flush= True)
+    print(f"for csr: {request.csr} at path {csr_path}", flush= True)
     
-    #await asyncio.sleep(5)
+    web_dir = f"/tmp/{request.domain}"
+    Path(web_dir).mkdir(parents=True, exist_ok=True)
 
-
-    #full_output = ""
-    line = p.stdout.readline().rstrip().decode("utf-8")
-    #print(line, flush=True)
+    p = Popen(['certbot', 'certonly', '--webroot', '-w', web_dir, '-d', request.domain, '--register-unsafely-without-email', "--csr", csr_path, '--agree-tos'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
     
-    data = ""
-    while True:
-        if line.startswith("And make it available"):
-            break
-        if line.startswith("Create a file containing"):
-            p.stdout.readline().rstrip().decode("utf-8")
-            data = p.stdout.readline().rstrip().decode("utf-8")
-        #print(line, flush=True)
-        line = p.stdout.readline().rstrip().decode("utf-8")
-    print(p.stdout.readline().rstrip().decode("utf-8"), flush=True)
-    location_url = p.stdout.readline().rstrip().decode("utf-8")
-    print(f"data: {data}, at location: {location_url}", flush=True)
-    domain_challenge_map[request.domain] = data
-    p.stdin.write('\n'.encode("utf-8"))
-    p.stdin.flush()
-    print("entering async wait", flush=True)
     await asyncio.sleep(20)
-    print("emding asunc wait", flush=True)
+    print(p.communicate())
+    
+    #
+
+
+    ##full_output = ""
+    #line = p.stdout.readline().rstrip().decode("utf-8")
+    ##print(line, flush=True)
+    #
+    #data = ""
+    #while True:
+    #    if line.startswith("And make it available"):
+    #        break
+    #    if line.startswith("Create a file containing"):
+    #        p.stdout.readline().rstrip().decode("utf-8")
+    #        data = p.stdout.readline().rstrip().decode("utf-8")
+    #    #print(line, flush=True)
+    #    line = p.stdout.readline().rstrip().decode("utf-8")
+    #print(p.stdout.readline().rstrip().decode("utf-8"), flush=True)
+    #location_url = p.stdout.readline().rstrip().decode("utf-8")
+    #print(f"data: {data}, at location: {location_url}", flush=True)
+    #domain_challenge_map[request.domain] = data
+    #p.stdin.write('\n'.encode("utf-8"))
+    #p.stdin.flush()
+    #print("entering async wait", flush=True)
+    #await asyncio.sleep(20)
+    #print("emding asunc wait", flush=True)
     #t = threading.Thread(name='non-daemon', target=p.communicate)
-    print(p.communicate(), flush=True)
+    #print(p.communicate(), flush=True)
 
     full_chain = None
     with open(f"/etc/letsencrypt/live/{request.domain}/fullchain.pem") as f:
@@ -86,8 +97,9 @@ async def perform_cert_request(request: CertRequest):
 
 
 
-@app.get("/domain/{domain_name}", response_class=PlainTextResponse)
-async def domain_challenge(domain_name: str):
+@app.get("/domain/{domain_name}/{challenge_path:path}", response_class=PlainTextResponse)
+async def domain_challenge(domain_name: str, challenge_path: str):
     global domain_challenge_map
     print(f"domain challenge for {domain_name}")
+    print(f"pathpart: {challenge_path}")
     return domain_challenge_map[domain_name]
