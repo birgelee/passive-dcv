@@ -89,7 +89,7 @@ python -c "import requests
 import json
 secret = Path('my_secret.key').read_text()
 csr = Path('req.csr').read_text()
-response = json.loads(requests.post("https://pdcv.henrybirgelee.com/cert", json={'domain': 'YOUR_DOMAIN_HERE', 'csr': csr, 'secret': secret}).text)"
+response = json.loads(requests.post('https://pdcv.henrybirgelee.com/cert', json={'domain': 'YOUR_DOMAIN_HERE', 'csr': csr, 'secret': secret}).text)"
 Path('fullchain.pem').write_text(response['full_chain'])
 Path('chain.pem').write_text(response['chain'])
 Path('cert.pem').write_text(response['cert'])
