@@ -100,6 +100,12 @@ async def perform_cert_request(request: CertRequest):
 @app.get("/domain/{domain_name}/{challenge_path:path}", response_class=PlainTextResponse)
 async def domain_challenge(domain_name: str, challenge_path: str):
     global domain_challenge_map
-    print(f"domain challenge for {domain_name}")
-    print(f"pathpart: {challenge_path}")
-    return domain_challenge_map[domain_name]
+    print(f"domain challenge for {domain_name}", flush=True)
+    print(f"pathpart: {challenge_path}", flush=True)
+    web_dir = f"/tmp/{domain_name}"
+    file_path = web_dir + challenge_path
+    file_contents = None
+    with open(file_path) as f:
+        file_contents = f.read()
+    print(f"file contents: {file_contents}", flush=True)
+    return file_contents
