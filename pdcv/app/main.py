@@ -17,8 +17,26 @@ import hashlib
 
 from pathlib import Path
 
+import asyncio
+from asyncio.subprocess import PIPE, STDOUT  
+import subprocess
+import signal
 
-import threading
+def signal_handler(signal, frame):
+    loop.stop()
+    client.close()
+    sys.exit(0)
+
+async def run_async(cmd):
+    print ("[INFO] Starting script...")
+    p = await asyncio.create_subprocess_shell(cmd, stdin = PIPE, stdout = PIPE, stderr = PIPE)
+    stdout, stderr = await p.communicate()
+    print(stderr.decode("utf-8"))
+    print("[INFO] Script is complete.")
+    return stdout.decode("utf-8")
+
+
+
 from fastapi.responses import PlainTextResponse
 
 
@@ -65,10 +83,11 @@ async def perform_cert_request(request: CertRequest):
     Path(cert_dir).mkdir(parents=True, exist_ok=True)
     Path(config_dir).mkdir(parents=True, exist_ok=True)
 
-    p = Popen(['certbot', 'certonly', '--webroot', '-w', web_dir, '-d', request.domain, '--register-unsafely-without-email', "--csr", csr_path, '--agree-tos', '--test-cert', '--cert-path', f"{cert_dir}/cert.pem", '--fullchain-path', f"{cert_dir}/fullchain.pem", '--chain-path', f"{cert_dir}/chain.pem", '--config-dir', config_dir], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
-    
-    await asyncio.sleep(25)
-    print(p.communicate())
+    #p = Popen(['certbot', 'certonly', '--webroot', '-w', web_dir, '-d', request.domain, '--register-unsafely-without-email', "--csr", csr_path, '--agree-tos', '--test-cert', '--cert-path', f"{cert_dir}/cert.pem", '--fullchain-path', f"{cert_dir}/fullchain.pem", '--chain-path', f"{cert_dir}/chain.pem", '--config-dir', config_dir], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+    certbot_cmd = f"certbot certonly --webroot -w {web_dir} -d {request.domain} --register-unsafely-without-email -csr {csr_path} --agree-tos --test-cert --cert-path {cert_dir}/cert.pem --fullchain-path {cert_dir}/fullchain.pem --chain-path {cert_dir}/chain.pem --config-dir {config_dir}"
+    await run_async(certbot_cmd)
+    #await asyncio.sleep(25)
+    #print(p.communicate())
     
     #
 
