@@ -55,7 +55,7 @@ async def perform_cert_request(request: CertRequest):
     web_dir = f"/tmp/{request.domain}"
     Path(web_dir).mkdir(parents=True, exist_ok=True)
 
-    p = Popen(['certbot', 'certonly', '--webroot', '-w', web_dir, '-d', request.domain, '--register-unsafely-without-email', "--csr", csr_path, '--agree-tos'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+    p = Popen(['certbot', 'certonly', '--webroot', '-w', web_dir, '-d', request.domain, '--register-unsafely-without-email', "--csr", csr_path, '--agree-tos', '--test-cert'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
     
     await asyncio.sleep(20)
     print(p.communicate())
