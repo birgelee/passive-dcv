@@ -27,7 +27,7 @@ print(''.join([secrets.choice(alphabet) for i in range(40)]), end='')" > my_secr
 The public is just the SHA256 hex digest of the secret. You can get this with:
 
 ```
-sha256sum my_secret.key > public.key
+sha256sum my_secret.key | awk '{ print $1 }' > public.key
 ```
 
 (presuming my_secret.key is where you saved your secret)
