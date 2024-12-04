@@ -1,19 +1,19 @@
 # passive-dcv
-A system to complete domain control validation via one-time static configuration instead of an online challenge protocol. Any (athorized) client can get a new cert whether or not it has access to the operating domain infrastructure.
+A system to complete domain control validation via one-time static configuration instead of an online challenge protocol. Any (authorized) client can get a new cert whether or not it has access to the operating domain infrastructure.
 
 The entire system is stateless and can be thought of as a service that, with a single HTTP POST call, any HTTP(S) client can obtain a certificate (presuming it send the proper secret token and a domain is configured correctly).
 
 The clients that obtain certs merely perform a single web request, they are not full ACME clients. After initial static domain configuration, just send an HTTP post with a CSR and proper secret value and get back a signed cert.
 
 
-# Useage
+# Usage
 
-The project can be used in either a 3rd-party or self-hosted environment. This documentation uses the hosted endpiont https://pdcv.henrybirgelee.com but the project can be run with docker compose and then self hosted at any endpoint. The endpoint must be publically accessable and we recommend the endpoint run HTTPS to ensure secrete values are not leaked (e.g., the hosted version has the docker compose up script running behind an nginx reverse proxy that manages HTTPS).
+The project can be used in either a 3rd-party or self-hosted environment. This documentation uses the hosted endpoint https://pdcv.henrybirgelee.com but the project can be run with docker compose and then self hosted at any endpoint. The endpoint must be publicly accessible and we recommend the endpoint run HTTPS to ensure secrete values are not leaked (e.g., the hosted version has the docker compose up script running behind an nginx reverse proxy that manages HTTPS).
 
 ## 1. Create a secret
 A secret is the way only your clients are authenticated and allowed to get certs for your domain. A client without your secret can't get a cert for your domain from the service and any client with your secret can get a domain. Secrets can be changed if compromised (via changing the magic redirect configured next), but keep in mind there are no accounts. Your secret is your way of authenticating with the service. The secret system makes the service stateless and requre no registration.
 
-A secret is essentially the preimage of a SHA256 hash which is your public key. Essentially SHA256(sevret) = public.
+A secret is essentially the preimage of a SHA256 hash which is your public key. Essentially SHA256_hex_digest(secret) = public.
 
 A secret can be any string. We recommend having significant entropy particularly since is potentially targetable with offline attacks. Thus, a possible way of generating it is:
 
@@ -30,7 +30,7 @@ The public is just the SHA256 hex digest of the secret. You can get this with:
 sha256sum my_secret.key | awk '{ print $1 }' > public.key
 ```
 
-(presuming my_secret.key is where you saved your secret)
+(presuming my_secret.key is where you saved your secret). This command outputs the sha256 hash to public.key. The contents of public.key can simply be copied into the magic redirect below.
 
 ## 2. Create a magic redirect
 
@@ -42,7 +42,9 @@ The redirect line in nginx should go in the appropriate server block and read:
 rewrite ^/.well-known/ https://pdcv.henrybirgelee.com/domain/<YOUR_PUBLIC_HERE>/$host$request_uri;
 ```
 
-Reload your nginx server to ensure it takes effect. Use the hex digest public you produced above (e.g., public.key) in the redirect statement.
+Where <YOUR_PUBLIC_HERE> contains the sha256 hex digest produced by sha256sum in the step above and stored in public.key. This must be one line and not have any chars between $host and $request_uri .
+
+Reload your nginx server to ensure it takes effect.
 
 ## 3. Generate a CSR
 
