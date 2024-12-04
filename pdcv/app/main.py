@@ -54,17 +54,16 @@ async def perform_cert_request(request: CertRequest):
 
     #full_output = ""
     line = p.stdout.readline().rstrip().decode("utf-8")
-    print(line, flush=True)
+    #print(line, flush=True)
     
     data = ""
     while True:
         if line.startswith("And make it available"):
             break
         if line.startswith("Create a file containing"):
-            next_line_is_data = True
             p.stdout.readline().rstrip().decode("utf-8")
             data = p.stdout.readline().rstrip().decode("utf-8")
-        print(line, flush=True)
+        #print(line, flush=True)
         line = p.stdout.readline().rstrip().decode("utf-8")
     print(p.stdout.readline().rstrip().decode("utf-8"), flush=True)
     location_url = p.stdout.readline().rstrip().decode("utf-8")
