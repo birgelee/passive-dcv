@@ -67,7 +67,7 @@ async def perform_cert_request(request: CertRequest):
 
     p = Popen(['certbot', 'certonly', '--webroot', '-w', web_dir, '-d', request.domain, '--register-unsafely-without-email', "--csr", csr_path, '--agree-tos', '--test-cert', '--cert-path', f"{cert_dir}/cert.pem", '--fullchain-path', f"{cert_dir}/fullchain.pem", '--chain-path', f"{cert_dir}/chain.pem", '--config-dir', config_dir], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
     
-    await asyncio.sleep(20)
+    await asyncio.sleep(25)
     print(p.communicate())
     
     #
