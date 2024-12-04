@@ -64,6 +64,7 @@ async def perform_cert_request(request: CertRequest):
     p.stdin.write('\n'.encode("utf-8"))
     p.stdin.flush()
     await asyncio.sleep(10)
+    print(p.communicate())
     return CertResponse(domain = request.domain)
 
 
