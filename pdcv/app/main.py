@@ -61,7 +61,8 @@ async def perform_cert_request(request: CertRequest):
     location_url = p.stdout.readline().rstrip().decode("utf-8")
     print(f"data: {data}, at location: {location_url}")
     domain_challenge_map[request.domain] = data
-    p.stdin.write('\n'.encode("utf-8")).flush()
+    p.stdin.write('\n'.encode("utf-8"))
+    p.stdin.flush()
     await asyncio.sleep(10)
     return CertResponse(domain = request.domain)
 
