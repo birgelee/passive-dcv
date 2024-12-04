@@ -13,6 +13,8 @@ import random
 import os
 import json
 
+import hashlib
+
 from pathlib import Path
 
 
@@ -30,11 +32,14 @@ from pydantic import BaseModel # type: ignore
 class CertRequest(BaseModel):
     domain: str
     csr: str
+    secret: str
 
 
 class CertResponse(BaseModel):
     domain: str
     full_chain: str
+    chain: str
+    cert: str
 
 
 
@@ -52,9 +57,9 @@ async def perform_cert_request(request: CertRequest):
     # make the dir
     print("running subproc v2", flush= True)
     print(f"for csr: {request.csr} at path {csr_path}", flush= True)
-    
-    web_dir = f"/tmp/web/{request.domain}"
-    cert_dir = f"/tmp/cert/{request.domain}"
+    auth_code = hashlib.sha256(request.secret.encode("utf-8")).hexdigest()
+    web_dir = f"/tmp/web/{auth_code}/{request.domain}"
+    cert_dir = f"/tmp/cert/{auth_code}/{request.domain}/"
     Path(web_dir).mkdir(parents=True, exist_ok=True)
     Path(cert_dir).mkdir(parents=True, exist_ok=True)
 
@@ -96,19 +101,28 @@ async def perform_cert_request(request: CertRequest):
     with open(f"{cert_dir}/fullchain.pem") as f:
         full_chain = f.read()
 
+    chain = None
+    with open(f"{cert_dir}/chain.pem") as f:
+        chain = f.read()
+
+    cert = None
+    with open(f"{cert_dir}/cert.pem") as f:
+        cert = f.read()
+
+
     shutil.rmtree(cert_dir)
     shutil.rmtree(web_dir)
-    return CertResponse(domain = request.domain, full_chain = full_chain)
+    return CertResponse(domain = request.domain, full_chain = full_chain, chain = chain, cert = cert)
 
 
 
 
-@app.get("/domain/{domain_name}/{challenge_path:path}", response_class=PlainTextResponse)
-async def domain_challenge(domain_name: str, challenge_path: str):
+@app.get("/domain/{auth_code}/{domain_name}/{challenge_path:path}", response_class=PlainTextResponse)
+async def domain_challenge(auth_code: str, domain_name: str, challenge_path: str):
     global domain_challenge_map
     print(f"domain challenge for {domain_name}", flush=True)
     print(f"pathpart: {challenge_path}", flush=True)
-    web_dir = f"/tmp/web/{domain_name}"
+    web_dir = f"/tmp/web/{auth_code}/{domain_name}"
     file_path = web_dir + "/" + challenge_path
     file_contents = None
     with open(file_path) as f:
