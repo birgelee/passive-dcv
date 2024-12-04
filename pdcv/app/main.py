@@ -25,6 +25,7 @@ from pydantic import BaseModel # type: ignore
 
 class CertRequest(BaseModel):
     domain: str
+    key: str
 
 
 class CertResponse(BaseModel):
@@ -43,6 +44,7 @@ async def perform_cert_request(request: CertRequest):
     global domain_challenge_map
     p = Popen(['certbot', 'certonly', '--manual', '--register-unsafely-without-email', '--agree-tos', '-d', request.domain], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
     print("running subproc v2")
+    print(f"for key: {request.key}")
     sys.stdout.flush()
     #await asyncio.sleep(5)
 
