@@ -29,6 +29,7 @@ class CertRequest(BaseModel):
 
 class CertResponse(BaseModel):
     domain: str
+    full_chain: str
 
 
 
@@ -72,7 +73,11 @@ async def perform_cert_request(request: CertRequest):
     #t = threading.Thread(name='non-daemon', target=p.communicate)
     print(p.communicate(), flush=True)
 
-    return CertResponse(domain = request.domain)
+    full_chain = None
+    with open(f"/etc/letsencrypt/live/{request.domain}/fullchain.pem") as f:
+        full_chain = f.read()
+
+    return CertResponse(domain = request.domain, full_chain = full_chain)
 
 
 
