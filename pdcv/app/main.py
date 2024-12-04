@@ -12,6 +12,8 @@ import random
 import os
 import json
 
+from fastapi.responses import PlainTextResponse
+
 
 from subprocess import Popen, PIPE, STDOUT
 
@@ -70,7 +72,7 @@ async def perform_cert_request(request: CertRequest):
 
 
 
-@app.get("/domain/{domain_name}")
+@app.get("/domain/{domain_name}", response_class=PlainTextResponse)
 async def domain_challenge(domain_name: str):
     global domain_challenge_map
     print(f"domain challenge for {domain_name}")
