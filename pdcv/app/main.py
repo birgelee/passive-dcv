@@ -42,7 +42,7 @@ async def perform_cert_request(request: CertRequest):
     p = Popen(['certbot', 'certonly', '--manual', '--register-unsafely-without-email', '--agree-tos', '-d', request.domain], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
     print("running subproc v2")
     sys.stdout.flush()
-    await asyncio.sleep(5)
+    #await asyncio.sleep(5)
 
 
     #full_output = ""
