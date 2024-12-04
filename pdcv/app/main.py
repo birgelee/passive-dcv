@@ -1,3 +1,4 @@
+import asyncio
 import sys
 
 from fastapi import FastAPI
@@ -30,13 +31,16 @@ class CertResponse(BaseModel):
 
 app = FastAPI()
 
+domain_challenge_map = {}
+
 
 @app.post("/cert")
-def perform_mpic(request: CertRequest):
+async def perform_cert_request(request: CertRequest):
+    global domain_challenge_map
     p = Popen(['certbot', 'certonly', '--manual', '--register-unsafely-without-email', '--agree-tos', '-d', request.domain], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
     print("running subproc v2")
     sys.stdout.flush()
-    time.sleep(5)
+    await asyncio.sleep(5)
 
 
     #full_output = ""
@@ -56,7 +60,14 @@ def perform_mpic(request: CertRequest):
     print(p.stdout.readline().rstrip().decode("utf-8"))
     location_url = p.stdout.readline().rstrip().decode("utf-8")
     print(f"data: {data}, at location: {location_url}")
-    
+    domain_challenge_map[request.domain] = data
+    p.stdin.write('\n').flush()
+    await asyncio.sleep(10)
     return CertResponse(domain = request.domain)
 
 
+
+
+@app.get("/domain/{domain_name}")
+def domain_challenge(domain_name: str):
+    print(f"domain challenge for {domain_name}")
