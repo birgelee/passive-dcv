@@ -68,9 +68,9 @@ async def perform_cert_request(request: CertRequest):
     p.stdin.flush()
     print("entering async wait", flush=True)
     await asyncio.sleep(20)
-    print("emding asunc wait")
+    print("emding asunc wait", flush=True)
     #t = threading.Thread(name='non-daemon', target=p.communicate)
-    print(p.communicate())
+    print(p.communicate(), flush=True)
 
     return CertResponse(domain = request.domain)
 
