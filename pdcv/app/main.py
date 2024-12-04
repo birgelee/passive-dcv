@@ -103,7 +103,7 @@ async def domain_challenge(domain_name: str, challenge_path: str):
     print(f"domain challenge for {domain_name}", flush=True)
     print(f"pathpart: {challenge_path}", flush=True)
     web_dir = f"/tmp/{domain_name}"
-    file_path = web_dir + challenge_path
+    file_path = web_dir + "/" + challenge_path
     file_contents = None
     with open(file_path) as f:
         file_contents = f.read()
