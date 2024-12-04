@@ -10,6 +10,8 @@ The clients that obtain certs merely perform a single web request, they are not 
 
 The project can be used in either a 3rd-party or self-hosted environment. This documentation uses the hosted endpoint https://pdcv.henrybirgelee.com but the project can be run with docker compose and then self hosted at any endpoint. The endpoint must be publicly accessible and we recommend the endpoint run HTTPS to ensure secrete values are not leaked (e.g., the hosted version has the docker compose up script running behind an nginx reverse proxy that manages HTTPS).
 
+Note: Right now the hosted endpoint is using the Let's Encrypt staging environment for experimentation purposes. The resulting certs are not publicly trusted.
+
 ## 1. Create a secret
 A secret is the way only your clients are authenticated and allowed to get certs for your domain. A client without your secret can't get a cert for your domain from the service and any client with your secret can get a domain. Secrets can be changed if compromised (via changing the magic redirect configured next), but keep in mind there are no accounts. Your secret is your way of authenticating with the service. The secret system makes the service stateless and requre no registration.
 
