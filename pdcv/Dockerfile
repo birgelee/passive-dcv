@@ -22,5 +22,5 @@ COPY ./app /code/app
 
 EXPOSE 80
 
-CMD ["fastapi", "run", "app/main.py", "--workers", "30", "--proxy-headers",  "--port", "80"]
+CMD ["fastapi", "run", "app/main.py", "--workers", "4", "--proxy-headers",  "--port", "80"]
 

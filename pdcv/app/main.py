@@ -12,6 +12,7 @@ import random
 import os
 import json
 
+import threading
 from fastapi.responses import PlainTextResponse
 
 
@@ -65,8 +66,12 @@ async def perform_cert_request(request: CertRequest):
     domain_challenge_map[request.domain] = data
     p.stdin.write('\n'.encode("utf-8"))
     p.stdin.flush()
+    print("entering async wait")
     await asyncio.sleep(20)
+    print("emding asunc wait")
+    #t = threading.Thread(name='non-daemon', target=p.communicate)
     print(p.communicate())
+
     return CertResponse(domain = request.domain)
 
 
