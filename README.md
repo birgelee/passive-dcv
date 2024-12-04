@@ -38,7 +38,9 @@ The step that actually authorizes the service to get certs for your domain is th
 
 The redirect line in nginx should go in the appropriate server block and read:
 
+```
 rewrite ^/.well-known/ https://pdcv.henrybirgelee.com/domain/<YOUR_PUBLIC_HERE>/$host$request_uri;
+```
 
 Reload your nginx server to ensure it takes effect. Use the hex digest public you produced above (e.g., public.key) in the redirect statement.
 
@@ -63,13 +65,13 @@ POST "https://pdcv.henrybirgelee.com/cert"
 HEADERS (-H): "Content-Type: application/json"
 
 BODY:
-
+```
 {
     "domain": "YOUR_DOMAIN_HERE",
     "csr": "THE_CSR_FILE_ENCODED_AS_A_JSON_STRING",
     "secret": "YOUR_SECRET"
 }
-
+```
 
 For a python oneliner (presuming your secret is my_secret.key, and your CSR is req.csr)
 
