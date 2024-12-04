@@ -59,11 +59,13 @@ async def perform_cert_request(request: CertRequest):
     print(f"for csr: {request.csr} at path {csr_path}", flush= True)
     auth_code = hashlib.sha256(request.secret.encode("utf-8")).hexdigest()
     web_dir = f"/tmp/web/{auth_code}/{request.domain}"
-    cert_dir = f"/tmp/cert/{auth_code}/{request.domain}/"
+    cert_dir = f"/tmp/cert/{auth_code}/{request.domain}"
+    config_dir = f"/tmp/config/{auth_code}"
     Path(web_dir).mkdir(parents=True, exist_ok=True)
     Path(cert_dir).mkdir(parents=True, exist_ok=True)
+    Path(config_dir).mkdir(parents=True, exist_ok=True)
 
-    p = Popen(['certbot', 'certonly', '--webroot', '-w', web_dir, '-d', request.domain, '--register-unsafely-without-email', "--csr", csr_path, '--agree-tos', '--test-cert', '--cert-path', f"{cert_dir}/cert.pem", '--fullchain-path', f"{cert_dir}/fullchain.pem", '--chain-path', f"{cert_dir}/chain.pem"], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+    p = Popen(['certbot', 'certonly', '--webroot', '-w', web_dir, '-d', request.domain, '--register-unsafely-without-email', "--csr", csr_path, '--agree-tos', '--test-cert', '--cert-path', f"{cert_dir}/cert.pem", '--fullchain-path', f"{cert_dir}/fullchain.pem", '--chain-path', f"{cert_dir}/chain.pem", '--config-dir', config_dir], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
     
     await asyncio.sleep(20)
     print(p.communicate())
