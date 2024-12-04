@@ -57,7 +57,7 @@ async def perform_cert_request(request: CertRequest):
     Path(web_dir).mkdir(parents=True, exist_ok=True)
     Path(cert_dir).mkdir(parents=True, exist_ok=True)
 
-    p = Popen(['certbot', 'certonly', '--webroot', '-w', web_dir, '-d', request.domain, '--register-unsafely-without-email', "--csr", csr_path, '--agree-tos', '--test-cert', '--cert-path', f"{cert_dir}/cert.pem"], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+    p = Popen(['certbot', 'certonly', '--webroot', '-w', web_dir, '-d', request.domain, '--register-unsafely-without-email', "--csr", csr_path, '--agree-tos', '--test-cert', '--cert-path', f"{cert_dir}/cert.pem", '--fullchain-path', f"{cert_dir}/fullchain.pem", '--chain-path', f"{cert_dir}/chain.pem"], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
     
     await asyncio.sleep(20)
     print(p.communicate())
@@ -92,7 +92,7 @@ async def perform_cert_request(request: CertRequest):
 
     full_chain = None
     #with open(f"/etc/letsencrypt/live/{request.domain}/fullchain.pem") as f:
-    with open(f"{cert_dir}/cert.pem") as f:
+    with open(f"{cert_dir}/fullchain.pem") as f:
         full_chain = f.read()
 
     return CertResponse(domain = request.domain, full_chain = full_chain)
