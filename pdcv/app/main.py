@@ -1,31 +1,15 @@
 import asyncio
 import shutil
-import sys
 
-from fastapi import FastAPI
-
-import time
-
-import yaml
-
-import requests
-import random
-import os
-import json
-
+from fastapi import FastAPI # type: ignore
 import hashlib
-
 from pathlib import Path
-
 import asyncio
-from asyncio.subprocess import PIPE, STDOUT  
-import subprocess
-import signal
+from asyncio.subprocess import PIPE  
+from fastapi.responses import PlainTextResponse # type: ignore
+from pydantic import BaseModel # type: ignore
 
-def signal_handler(signal, frame):
-    loop.stop()
-    client.close()
-    sys.exit(0)
+
 
 async def run_async(cmd):
     print ("[INFO] Starting script...")
@@ -34,17 +18,6 @@ async def run_async(cmd):
     print(stderr.decode("utf-8"))
     print("[INFO] Script is complete.")
     return stdout.decode("utf-8")
-
-
-
-from fastapi.responses import PlainTextResponse
-
-
-from subprocess import Popen, PIPE, STDOUT
-
-
-from abc import ABC
-from pydantic import BaseModel # type: ignore
 
 
 class CertRequest(BaseModel):
@@ -88,37 +61,6 @@ async def perform_cert_request(request: CertRequest):
     certbot_cmd = f"certbot certonly --webroot -w {web_dir} -d {request.domain} --register-unsafely-without-email --csr {csr_path} --agree-tos --test-cert --cert-path {cert_dir}/cert.pem --fullchain-path {cert_dir}/fullchain.pem --chain-path {cert_dir}/chain.pem --config-dir {config_dir}"
     print(certbot_cmd)
     await run_async(certbot_cmd)
-    #await asyncio.sleep(25)
-    #print(p.communicate())
-    
-    
-    #
-
-
-    ##full_output = ""
-    #line = p.stdout.readline().rstrip().decode("utf-8")
-    ##print(line, flush=True)
-    #
-    #data = ""
-    #while True:
-    #    if line.startswith("And make it available"):
-    #        break
-    #    if line.startswith("Create a file containing"):
-    #        p.stdout.readline().rstrip().decode("utf-8")
-    #        data = p.stdout.readline().rstrip().decode("utf-8")
-    #    #print(line, flush=True)
-    #    line = p.stdout.readline().rstrip().decode("utf-8")
-    #print(p.stdout.readline().rstrip().decode("utf-8"), flush=True)
-    #location_url = p.stdout.readline().rstrip().decode("utf-8")
-    #print(f"data: {data}, at location: {location_url}", flush=True)
-    #domain_challenge_map[request.domain] = data
-    #p.stdin.write('\n'.encode("utf-8"))
-    #p.stdin.flush()
-    #print("entering async wait", flush=True)
-    #await asyncio.sleep(20)
-    #print("emding asunc wait", flush=True)
-    #t = threading.Thread(name='non-daemon', target=p.communicate)
-    #print(p.communicate(), flush=True)
 
     full_chain = None
     #with open(f"/etc/letsencrypt/live/{request.domain}/fullchain.pem") as f:
